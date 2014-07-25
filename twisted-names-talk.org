@@ -1,0 +1,505 @@
+#+TITLE: Twisted Names
+#+DATE:
+#+AUTHOR: EuroPython - Berlin - 2014
+#+EMAIL: Richard Wall @wallrj
+#+REVEAL_THEME: night
+#+REVEAL_TRANS: linear
+#+REVEAL-SLIDE-NUMBER: t
+#+OPTIONS: timestamp:nil author:nil num:nil toc:nil reveal_rolling_links:nil
+#+OPTIONS: reveal_history:t
+# Remove speaker notes
+# awk 'BEGIN {skip=0} /^#\+BEGIN_NOTES/ { skip=1 } /^#\+END_NOTES/ {skip=0; next;} {if(skip==0) print $0}' 
+
+* About Me
+#+ATTR_REVEAL: :frag fade-in
+  * [[file:images/pyconuk_snakes.png]]
+
+#+ATTR_REVEAL: :frag fade-in
+  * [[file:images/twisted-logo.jpg]]
+
+#+ATTR_REVEAL: :frag fade-in
+  * [[file:images/cluster_hq_logo.png]]
+
+
+
+
+* Preview
+  * DNS Overview
+  * A guided tour of Twisted Names
+  * Practical examples
+  * Status Report: EDNS and DNSSEC project
+  * Questions?
+
+
+* DNS (Domain Name System)
+
+  [[file:images/lynne-root-talk.png]]
+
+  * http://rogue.ly/dns
+
+
+* Twisted Names
+  https://twistedmatrix.com
+
+
+* 13 years old
+
+  [[file:images/twisted-revision-440.png]]
+
+  https://twistedmatrix.com/trac/changeset/440
+
+  23 September 2001
+
+
+* 13 years old
+
+  #+BEGIN_SRC sh
+  $ git log --date=short --format='%ad: %<(10,trunc) %an: %s' twisted/names/
+  #+END_SRC
+
+  #+BEGIN_SRC
+  2014-05-12:  hawkowl   : Merge no-conflict-14.0-7039: Release Twisted 14.0.0
+  2014-02-28:  rwall     : Merge pyflakes-pair-6993
+  2014-02-25:  rwall     : Merge serial-number-arithmetic-6672
+  2014-02-24:  rwall     : Merge reverse-lookup-example-6969
+  2014-02-20:  rwall     : Merge concise-ednsmessage-repr-6975
+  2014-02-10:  rwall     : Merge clean-response-message-6645-2
+  2014-02-02:  hawkowl   : Merge udp-broadcast-454-3: Add UDP broadcast support
+  2014-02-01:  rwall     : Merge names-howto-toctree-6940
+  2014-01-27:  rwall     : Merge names-client-documentation-6925
+  2014-01-21:  rwall     : Merge meaningful-message-repr-6847-2
+  2014-01-18:  rwall     : Merge custom-server-documentation-6864-2
+  2014-01-03:  rwall     : Merge names-server-coverage-6887-2
+  2014-01-03:  rwall     : Merge names-server-documentation-6886
+  2014-01-01:  julian    : Merge remove-deprecated-test-methods-names-6222: Remove to-be-deprecated test methods from twisted.names
+  ...
+  2001-09-23:  moshez    : A blocking(!) resolver: just so nobody can say I made the situation worse...
+  2001-09-23:  moshez    : A resolver based on /etc/hosts
+  2001-09-23:  moshez    : Bah, there's no need to keep the numbers: they have no meaning except to order.
+  2001-09-23:  moshez    : Untuple one element tuple. Sorting doesn't care, but it ain't nice.
+  2001-09-23:  moshez    : * Saving the original message inside each answer * Properly dealing with answers of MX queries, by decompressing   the return
+  2001-09-23:  moshez    : Only timeout if we are not done yet
+  2001-09-23:  moshez    : Added names.dns.Resolver, a high-level interface to DNS suitable for clients
+  2001-09-23:  moshez    : Giving a richer interface: user can now determine class, type and whether the query is recursive Recursive queries are now th
+  2001-09-23:  moshez    : First prototype of twisted.names * Changed udp.Port to simulate connections   + We need to get rid of .dup() at some point
+  #+END_SRC
+
+
+
+* Well tested
+
+  #+BEGIN_SRC sh
+  $ trial twisted.names
+  twisted.names.test.test_cache
+    Caching
+      test_cachedResultExpires ...                                           [OK]
+      test_constructorExpires ...                                            [OK]
+      test_expiredTTLLookup ...                                              [OK]
+      test_interface ...                                                     [OK]
+      test_lookup ...                                                        [OK]
+      test_normalLookup ...                                                  [OK]
+  twisted.names.test.test_client
+    ClientTestCase
+      test_getHostByName ...                                                 [OK]
+  ...
+  Ran 592 tests in 1.343s
+
+  PASSED (skips=12, successes=580)
+  #+END_SRC
+
+
+
+* Well covered
+  #+BEGIN_SRC sh
+  $ coverage run --branch --omit='*twisted/names/test/*' --source=twisted.names $(type -p trial) twisted.names
+  #+END_SRC
+
+  [[file:images/twisted-names-coverage.png]]
+
+
+
+* Well documented
+
+  [[file:images/twisted-names-documentation.png]]
+
+  http://twisted.readthedocs.org/en/latest/names/
+
+
+
+
+* The Modules
+
+
+
+** twisted.names.dns
+
+
+*** dns.DNSDatagramProtocol (Client)
+    #+INCLUDE: "examples/example1.py" src python
+    example1.py
+
+
+
+**** Output
+      #+BEGIN_SRC sh
+      $ python example1.py
+      ANSWERS:  [<AAAA address=2606:2800:220:6d:26bf:1447:1097:aa7 ttl=10091>]
+      #+END_SRC
+
+
+
+*** dns.DNSDatagramProtocol (Server)
+    #+INCLUDE: "examples/example2.py" src python
+    example2.py
+
+
+
+
+**** Output
+
+     #+BEGIN_SRC sh
+     $ dig -p 10053 @localhost foo.bar A +short
+     ;; Warning: query response not set
+     192.0.2.1
+     #+END_SRC
+
+     #+BEGIN_SRC sh
+     $ python example2.py
+     MESSAGE_RECEIVED [Query('foo.bar', 1, 1)] FROM ('127.0.0.1', 51515)
+     #+END_SRC
+
+
+
+** twisted.names.client
+
+
+
+*** client.lookupPointer
+    #+INCLUDE: "examples/example3.py" src python
+    example3.py
+
+
+
+*** Output
+
+    #+BEGIN_SRC sh
+    $ time python example3.py
+    RESULT:  [('2.40.170.79.in-addr.arpa', <PTR name=ns1.mainnameserver.com ttl=10441>)]
+    RESULT:  [('3.40.170.79.in-addr.arpa', <PTR name=ns2.mainnameserver.com ttl=10515>)]
+    ...
+    RESULT:  [('92.40.170.79.in-addr.arpa', <PTR name=mail92.extendcp.co.uk ttl=10515>)]
+    RESULT:  [('94.40.170.79.in-addr.arpa', <PTR name=mail94.extendcp.co.uk ttl=10440>)]
+    73 responses to 256 queries
+
+    real	0m1.490s
+    user	0m0.655s
+    sys	0m0.112s
+    #+END_SRC
+
+
+** twisted.names.server
+
+
+*** twistd dns
+
+    #+BEGIN_SRC sh
+    $ twistd dns --help
+    Usage: twistd [options] dns [options]
+    Options:
+      -c, --cache         Enable record caching
+      -r, --recursive     Perform recursive lookups
+      -v, --verbose       Increment verbosity level
+      -i, --interface=    The interface to which to bind [default: ]
+      -p, --port=         The port on which to listen [default: 53]
+          --resolv-conf=  Override location of resolv.conf (implies --recursive)
+          --hosts-file=   Perform lookups with a hosts file
+          --help          Display this help and exit.
+          --version       Display Twisted version and exit.
+          --secondary=    Act as secondary for the specified domain, performing zone
+                          transfers from the specified IP (IP/domain)
+          --pyzone=       Specify the filename of a Python syntax zone definition
+          --bindzone=     Specify the filename of a BIND9 syntax zone definition
+    #+END_SRC
+
+
+*** Output
+    #+BEGIN_SRC sh
+    $ twistd -n dns --port 10053 --recursive
+    2013-09-20 04:36:08+0100 [-] Log opened.
+    2013-09-20 04:36:08+0100 [-] twistd 13.1.0 (/usr/bin/python 2.7.5) starting up.
+    2013-09-20 04:36:08+0100 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+    2013-09-20 04:36:08+0100 [-] DNSServerFactory starting on 10053
+    2013-09-20 04:36:08+0100 [-] DNSDatagramProtocol starting on 10053
+    2013-09-20 04:36:08+0100 [-] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x288da50>
+    2013-09-20 04:36:40+0100 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 61406
+    2013-09-20 04:36:40+0100 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x2895450>
+    2013-09-20 04:36:40+0100 [-] (UDP Port 61406 Closed)
+    2013-09-20 04:36:40+0100 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x2895450>
+    #+END_SRC
+
+    #+BEGIN_SRC sh
+    $ dig -p 10053 @localhost www.example.com A +short
+    93.184.216.119
+    #+END_SRC
+
+
+
+** twisted.names.authority
+   #+INCLUDE: "examples/example.com.py" src python
+   example.com.py
+
+
+
+*** Output
+    #+BEGIN_SRC sh
+    $ twistd -n dns --port 10053 --pyzone=examples/example.com.py
+    #+END_SRC
+
+    #+BEGIN_SRC sh
+    $ dig -p 10053 @localhost www.example.com A +short
+    example.com.
+    192.0.2.10
+    #+END_SRC
+
+
+** twisted.names.common
+
+
+** twisted.names.resolve
+
+
+** twisted.names.cache
+
+
+** twisted.names.root
+
+
+
+** twisted.names.secondary
+
+
+
+** Building Blocks
+   * Compliance testing
+   * Functional testing helpers
+   * Database backed DNS server
+   * REST based DNS management API
+
+
+
+* Example
+
+  dnsmap - https://code.google.com/p/dnsmap/
+
+
+* Example - dnsmap
+
+  #+BEGIN_SRC sh
+  $ dnsmap
+  dnsmap 0.30 - DNS Network Mapper by pagvac (gnucitizen.org)
+
+  usage: dnsmap <target-domain> [options]
+  options:
+  -w <wordlist-file>
+  -r <regular-results-file>
+  -c <csv-results-file>
+  -d <delay-millisecs>
+  -i <ips-to-ignore> (useful if you're obtaining false positives)
+
+  e.g.:
+  dnsmap target-domain.foo
+  dnsmap target-domain.foo -w yourwordlist.txt -r /tmp/domainbf_results.txt
+  dnsmap target-fomain.foo -r /tmp/ -d 3000
+  dnsmap target-fomain.foo -r ./domainbf_results.txt
+  #+END_SRC
+
+
+* Example - dnsmap
+
+  #+BEGIN_SRC sh
+  $ time dnsmap spotify.com
+  ...
+  groups.spotify.com
+  IP address #1: 173.194.69.121
+
+  ^C
+
+  real	0m48.784s
+  user	0m0.086s
+  sys	0m0.460s
+  #+END_SRC
+
+
+* Example - dnsmap
+  #+INCLUDE: "examples/dnsmap.py" src python
+   dnsmap.py
+
+#+REVEAL: split
+
+  #+BEGIN_SRC sh
+  $ time python examples/dnsmap.py spotify.com prefixes.txt
+  accounts.spotify.com (1)
+  ap.spotify.com (1)
+  beta.spotify.com (1)
+  blog.spotify.com (1)
+  developers.spotify.com (1)
+  download.spotify.com (1)
+  spotify.com (16)
+  er.spotify.com (5)
+  fg.spotify.com (1)
+  files.spotify.com (1)
+  groups.spotify.com (1)
+  images.spotify.com (1)
+  labs.spotify.com (1)
+  log.spotify.com (3)
+  login.spotify.com (1)
+  m.spotify.com (1)
+  mail.spotify.com (1)
+  mobile.spotify.com (1)
+  news.spotify.com (1)
+  ns1.spotify.com (1)
+  ns2.spotify.com (1)
+  ns3.spotify.com (1)
+  partners.spotify.com (1)
+  r.spotify.com (1)
+  support.spotify.com (1)
+  wap.spotify.com (1)
+  ws.spotify.com (1)
+  www.spotify.com (1)
+  SUCCESS: 28, FAILURE: 918, TIMEOUT: 64
+
+  real	0m2.529s
+  user	0m1.461s
+  sys	0m0.185s
+  #+END_SRC
+
+
+* My Project
+  "Twisted Names EDNS(0) and DNSSEC Client Support"
+
+
+
+* The EDNS Plan
+  [[file:images/twisted-edns-plan.png]]
+
+  https://twistedmatrix.com/trac/wiki/EDNS0
+
+
+
+* Funding
+  [[file:images/nlnet-application.png]]
+
+  http://www.nlnet.nl/foundation/request/application.html
+
+
+
+* EDNS(0)
+
+  RFC6891
+  [[file:images/rfc6891.png]]
+
+  http://tools.ietf.org/html/rfc6891
+
+
+* DNSSEC
+
+
+
+* DANE
+
+
+* Progress Report
+** Modest progress
+
+** Won Funding
+
+** OPT Record parsing complete
+   https://twistedmatrix.com/trac/changeset/39533
+
+** EDNS Message parsing complete
+   https://twistedmatrix.com/trac/ticket/5675
+
+** ...lots more to do!
+   1. EDNS Client
+   2. EDNS Server
+   3. RRSET improvements
+      1. Canonical Form and Order of Resource Records
+      2. Serving RRSETs
+      3. Receiving RRSETs
+      4. Caching RRSETs
+      5. Selective truncate
+   4. DNSSEC
+      1. New DNSSEC Records and Lookup Methods
+      2. Security-aware Non-validating Client
+      3. Validating Client
+      4. Validating Recursive / Forwarding Server
+      5. DNSSEC Aware Authoritative Server
+   5. DANE
+
+
+* How will this be useful
+
+** EDNS Compliance Testing
+
+   #+BEGIN_SRC python
+    def test_613_badVersion(self):
+        """
+        If a responder does not implement the VERSION level of the
+        request, then it MUST respond with RCODE=BADVERS.
+        https://tools.ietf.org/html/rfc6891#section-6.1.3
+        """
+        proto = edns.EDNSDatagramProtocol(
+            controller=None, ednsVersion=255)
+        self.connectProtocol(proto)
+        d = proto.query(self.server, [dns.Query('.', dns.NS, dns.IN)])
+        d.addCallback(
+            lambda message: self.assertEqual(message.rCode, dns.EBADVERSION))
+        return d
+   #+END_SRC
+
+   https://twistedmatrix.com/trac/browser/branches/edns-message-5675-4/doc/names/examples/test_edns_compliance.py
+
+
+** Integration of DNSSEC into Twisted's Hostname Endpoint
+   allowing secure transparent client connections from a dual-stack
+   IPv4 / IPv6 host.
+
+
+** Add TLSA / DANE support to Twisted Web Agent
+   allowing Twisted HTTP clients to additionally validate certificates
+   using signed DNS records.
+
+** Add SSHFP support to Twisted Conch
+   allowing Twisted SSH clients to validate the public keys of a
+   remote SSH server using signed DNS records.
+
+** Add S/MIME and / or SMTP/TLSA support to Twisted Mail
+   allowing Twisted SMTP clients to validate remote server
+   certificates using signed DNS records.
+
+** A Twisted SSL enabled DNS stub resolver
+   which communicates securely with a Twisted DNSSEC validating server
+   via an SSL/TLS or SSH transport. For situations where a Twisted
+   client can't do DNSSEC verification its self.
+
+** A Twisted DNSSEC management server
+   with an integrated SSH / HTTPS REST API for receiving and signing
+   DS keys from the servers for delegated child zones.
+
+
+* Summary
+
+  1. Twisted Names is an active project
+  2. With a long history
+  3. Building blocks for creating novel DNS servers and clients
+  4. Come and help out
+
+
+* Links
+  * https://github.com/wallrj/twisted-names-talk
+  * https://twitter.com/wallrj
+  * http://twisted.readthedocs.org/en/latest/
+  * https://twistedmatrix.com/trac/wiki/TwistedCommunity
+
+
+* Questions?
