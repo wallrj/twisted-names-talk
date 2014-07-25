@@ -1,0 +1,1005 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Twisted Names</title>
+<meta name="author" content="(EuroPython - Berlin - 2014)"/>
+
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/2.5.0/css/reveal.min.css"/>
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/2.5.0/css/theme/night.css" id="theme"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'http://cdn.jsdelivr.net/reveal.js/2.5.0/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section>
+<h1>Twisted Names</h1>
+<h2>EuroPython - Berlin - 2014</h2>
+<h2><a href="mailto:Richard Wall @wallrj">Richard Wall @wallrj</a></h2>
+<h2></h2></section>
+
+<section>
+<section id="sec-1" >
+
+<h2>About Me</h2>
+<ul class="org-ul">
+<li class="fragment fade-in"><img src="images/pyconuk_snakes.png" alt="pyconuk_snakes.png" />
+</li>
+</ul>
+
+<ul class="org-ul">
+<li class="fragment fade-in"><img src="images/twisted-logo.jpg" alt="twisted-logo.jpg" />
+</li>
+</ul>
+
+<ul class="org-ul">
+<li class="fragment fade-in"><img src="images/cluster_hq_logo.png" alt="cluster_hq_logo.png" />
+</li>
+</ul>
+</section>
+
+
+
+</section>
+<section>
+<section id="sec-2" >
+
+<h2>Preview</h2>
+<ul class="org-ul">
+<li>DNS Overview
+</li>
+<li>A guided tour of Twisted Names
+</li>
+<li>Practical examples
+</li>
+<li>Status Report: EDNS and DNSSEC project
+</li>
+<li>Questions?
+</li>
+</ul>
+</section>
+
+</section>
+<section>
+<section id="sec-3" >
+
+<h2>DNS (Domain Name System)</h2>
+<img src="images/lynne-root-talk.png" alt="lynne-root-talk.png" />
+
+<ul class="org-ul">
+<li><a href="http://rogue.ly/dns">http://rogue.ly/dns</a>
+</li>
+</ul>
+</section>
+
+</section>
+<section>
+<section id="sec-4" >
+
+<h2>Twisted Names</h2>
+<p>
+<a href="https://twistedmatrix.com">https://twistedmatrix.com</a>
+</p>
+</section>
+
+</section>
+<section>
+<section id="sec-5" >
+
+<h2>13 years old</h2>
+<img src="images/twisted-revision-440.png" alt="twisted-revision-440.png" />
+
+<p>
+<a href="https://twistedmatrix.com/trac/changeset/440">https://twistedmatrix.com/trac/changeset/440</a>
+</p>
+
+<p>
+23 September 2001
+</p>
+</section>
+
+</section>
+<section>
+<section id="sec-6" >
+
+<h2>13 years old</h2>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ git log --date=short --format=<span style="color: #bdb76b;">'%ad: %&lt;(10,trunc) %an: %s'</span> twisted/names/
+</pre>
+</div>
+
+<pre  class="example">
+2014-05-12:  hawkowl   : Merge no-conflict-14.0-7039: Release Twisted 14.0.0
+2014-02-28:  rwall     : Merge pyflakes-pair-6993
+2014-02-25:  rwall     : Merge serial-number-arithmetic-6672
+2014-02-24:  rwall     : Merge reverse-lookup-example-6969
+2014-02-20:  rwall     : Merge concise-ednsmessage-repr-6975
+2014-02-10:  rwall     : Merge clean-response-message-6645-2
+2014-02-02:  hawkowl   : Merge udp-broadcast-454-3: Add UDP broadcast support
+2014-02-01:  rwall     : Merge names-howto-toctree-6940
+2014-01-27:  rwall     : Merge names-client-documentation-6925
+2014-01-21:  rwall     : Merge meaningful-message-repr-6847-2
+2014-01-18:  rwall     : Merge custom-server-documentation-6864-2
+2014-01-03:  rwall     : Merge names-server-coverage-6887-2
+2014-01-03:  rwall     : Merge names-server-documentation-6886
+2014-01-01:  julian    : Merge remove-deprecated-test-methods-names-6222: Remove to-be-deprecated test methods from twisted.names
+...
+2001-09-23:  moshez    : A blocking(!) resolver: just so nobody can say I made the situation worse...
+2001-09-23:  moshez    : A resolver based on /etc/hosts
+2001-09-23:  moshez    : Bah, there's no need to keep the numbers: they have no meaning except to order.
+2001-09-23:  moshez    : Untuple one element tuple. Sorting doesn't care, but it ain't nice.
+2001-09-23:  moshez    : * Saving the original message inside each answer * Properly dealing with answers of MX queries, by decompressing   the return
+2001-09-23:  moshez    : Only timeout if we are not done yet
+2001-09-23:  moshez    : Added names.dns.Resolver, a high-level interface to DNS suitable for clients
+2001-09-23:  moshez    : Giving a richer interface: user can now determine class, type and whether the query is recursive Recursive queries are now th
+2001-09-23:  moshez    : First prototype of twisted.names * Changed udp.Port to simulate connections   + We need to get rid of .dup() at some point
+</pre>
+</section>
+
+
+</section>
+<section>
+<section id="sec-7" >
+
+<h2>Well tested</h2>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ trial twisted.names
+twisted.names.test.test_cache
+  Caching
+    test_cachedResultExpires ...                                           [OK]
+    test_constructorExpires ...                                            [OK]
+    test_expiredTTLLookup ...                                              [OK]
+    test_interface ...                                                     [OK]
+    test_lookup ...                                                        [OK]
+    test_normalLookup ...                                                  [OK]
+twisted.names.test.test_client
+  ClientTestCase
+    test_getHostByName ...                                                 [OK]
+...
+Ran 592 tests<span style="color: #ffffff;"> in</span> 1.343s
+
+<span style="color: #98fb98;">PASSED</span> (<span style="color: #9acd32;">skips</span>=12, <span style="color: #9acd32;">successes</span>=580)
+</pre>
+</div>
+</section>
+
+
+</section>
+<section>
+<section id="sec-8" >
+
+<h2>Well covered</h2>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ coverage run --branch --omit=<span style="color: #bdb76b;">'*twisted/names/test/*'</span> --source=twisted.names $(<span style="color: #fa8072;">type</span> -p trial) twisted.names
+</pre>
+</div>
+
+<img src="images/twisted-names-coverage.png" alt="twisted-names-coverage.png" />
+</section>
+
+
+</section>
+<section>
+<section id="sec-9" >
+
+<h2>Well documented</h2>
+<img src="images/twisted-names-documentation.png" alt="twisted-names-documentation.png" />
+
+<p>
+<a href="http://twisted.readthedocs.org/en/latest/names/">http://twisted.readthedocs.org/en/latest/names/</a>
+</p>
+</section>
+
+
+
+</section>
+<section>
+<section id="sec-10" >
+
+<h2>The Modules</h2>
+</section>
+<section id="sec-10-1" >
+
+<h3>twisted.names.dns</h3>
+</section>
+<section id="sec-10-1-1" >
+
+<h4>dns.DNSDatagramProtocol (Client)</h4>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #ffffff;">from</span> twisted.internet <span style="color: #ffffff;">import</span> task
+<span style="color: #ffffff;">from</span> twisted.names <span style="color: #ffffff;">import</span> dns
+
+<span style="color: #ffffff;">def</span> <span style="color: #98fb98;">main</span>(reactor):
+    <span style="color: #9acd32;">proto</span> = dns.DNSDatagramProtocol(controller=<span style="color: #40e0d0;">None</span>)
+    reactor.listenUDP(0, proto)
+
+    <span style="color: #9acd32;">d</span> = proto.query((<span style="color: #bdb76b;">'8.8.8.8'</span>, 53), [dns.Query(<span style="color: #bdb76b;">'www.example.com'</span>, dns.AAAA)])
+    d.addCallback(printResult)
+    <span style="color: #ffffff;">return</span> d
+
+<span style="color: #ffffff;">def</span> <span style="color: #98fb98;">printResult</span>(res):
+    <span style="color: #ffffff;">print</span> <span style="color: #bdb76b;">'ANSWERS: '</span>, [a.payload <span style="color: #ffffff;">for</span> a <span style="color: #ffffff;">in</span> res.answers]
+
+task.react(main)
+</pre>
+</div>
+<p>
+example1.py
+</p>
+
+
+
+<ul class="org-ul"><li class="fragment none">Output<br/><div class="org-src-container">
+
+<pre  class="src src-sh">$ python example1.py
+ANSWERS:  [&lt;AAAA <span style="color: #9acd32;">address</span>=2606:2800:220:6d:26bf:1447:1097:aa7 <span style="color: #9acd32;">ttl</span>=10091&gt;]
+</pre>
+</div>
+</li></ul>
+
+
+</section>
+<section id="sec-10-1-2" >
+
+<h4>dns.DNSDatagramProtocol (Server)</h4>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #ffffff;">from</span> twisted.internet <span style="color: #ffffff;">import</span> defer, task
+<span style="color: #ffffff;">from</span> twisted.names <span style="color: #ffffff;">import</span> dns
+
+<span style="color: #ffffff;">def</span> <span style="color: #98fb98;">main</span>(reactor):
+    <span style="color: #9acd32;">proto</span> = dns.DNSDatagramProtocol(controller=Controller())
+    reactor.listenUDP(10053, proto)
+
+    <span style="color: #ffffff;">return</span> defer.Deferred()
+
+<span style="color: #ffffff;">class</span> <span style="color: #7fffd4;">Controller</span>(<span style="color: #b0c4de;">object</span>):
+    <span style="color: #ffffff;">def</span> <span style="color: #98fb98;">messageReceived</span>(<span style="color: #ffffff;">self</span>, message, proto, address):
+        <span style="color: #ffffff;">print</span> <span style="color: #bdb76b;">"MESSAGE_RECEIVED"</span>, message.queries, <span style="color: #bdb76b;">"FROM"</span>, address
+        <span style="color: #9acd32;">message.answer</span> = <span style="color: #40e0d0;">True</span>
+        <span style="color: #9acd32;">message.answers</span> = [
+            dns.RRHeader(message.queries[0].name.name,
+                         payload=dns.Record_A(<span style="color: #bdb76b;">'192.0.2.1'</span>))
+        ]
+        proto.writeMessage(message, address)
+
+task.react(main)
+</pre>
+</div>
+<p>
+example2.py
+</p>
+
+
+
+
+<ul class="org-ul"><li class="fragment none">Output<br/><div class="org-src-container">
+
+<pre  class="src src-sh">$ dig -p 10053 @localhost foo.bar A +short
+;; Warning: query response not set
+192.0.2.1
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ python example2.py
+MESSAGE_RECEIVED [Query(<span style="color: #bdb76b;">'foo.bar'</span>, 1, 1)] FROM (<span style="color: #bdb76b;">'127.0.0.1'</span>, 51515)
+</pre>
+</div>
+</li></ul>
+
+
+</section>
+<section id="sec-10-2" >
+
+<h3>twisted.names.client</h3>
+</section>
+<section id="sec-10-2-1" >
+
+<h4>client.lookupPointer</h4>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #ffffff;">from</span> netaddr <span style="color: #ffffff;">import</span> IPNetwork
+<span style="color: #ffffff;">from</span> twisted.internet <span style="color: #ffffff;">import</span> defer, task
+<span style="color: #ffffff;">from</span> twisted.names <span style="color: #ffffff;">import</span> client
+
+<span style="color: #ffffff;">def</span> <span style="color: #98fb98;">main</span>(reactor):
+    <span style="color: #9acd32;">pending</span> = []
+    <span style="color: #ffffff;">for</span> addr <span style="color: #ffffff;">in</span> IPNetwork(<span style="color: #bdb76b;">'79.170.40.0/24'</span>):
+        <span style="color: #9acd32;">d</span> = client.lookupPointer(addr.reverse_dns, timeout=(1,))
+        pending.append(d)
+
+    <span style="color: #ffffff;">return</span> defer.DeferredList(pending, consumeErrors=<span style="color: #40e0d0;">True</span>).addCallback(printResult)
+
+<span style="color: #ffffff;">def</span> <span style="color: #98fb98;">printResult</span>(results):
+    <span style="color: #9acd32;">good</span> = 0
+    <span style="color: #ffffff;">for</span> success, result <span style="color: #ffffff;">in</span> results:
+        <span style="color: #ffffff;">if</span> success:
+            <span style="color: #9acd32;">answers</span>, <span style="color: #9acd32;">authority</span>, <span style="color: #9acd32;">additional</span> = result
+            <span style="color: #ffffff;">print</span> <span style="color: #bdb76b;">'RESULT: '</span>, [(a.name.name, a.payload) <span style="color: #ffffff;">for</span> a <span style="color: #ffffff;">in</span> answers]
+            <span style="color: #9acd32;">good</span> += 1
+    <span style="color: #ffffff;">print</span> good, <span style="color: #bdb76b;">'responses to'</span>, <span style="color: #b0c4de;">len</span>(results), <span style="color: #bdb76b;">'queries'</span>
+
+task.react(main)
+</pre>
+</div>
+<p>
+example3.py
+</p>
+
+
+</section>
+<section id="sec-10-2-2" >
+
+<h4>Output</h4>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ time python example3.py
+RESULT:  [(<span style="color: #bdb76b;">'2.40.170.79.in-addr.arpa'</span>, &lt;PTR <span style="color: #9acd32;">name</span>=ns1.mainnameserver.com <span style="color: #9acd32;">ttl</span>=10441&gt;)]
+RESULT:  [(<span style="color: #bdb76b;">'3.40.170.79.in-addr.arpa'</span>, &lt;PTR <span style="color: #9acd32;">name</span>=ns2.mainnameserver.com <span style="color: #9acd32;">ttl</span>=10515&gt;)]
+...
+RESULT:  [(<span style="color: #bdb76b;">'92.40.170.79.in-addr.arpa'</span>, &lt;PTR <span style="color: #9acd32;">name</span>=mail92.extendcp.co.uk <span style="color: #9acd32;">ttl</span>=10515&gt;)]
+RESULT:  [(<span style="color: #bdb76b;">'94.40.170.79.in-addr.arpa'</span>, &lt;PTR <span style="color: #9acd32;">name</span>=mail94.extendcp.co.uk <span style="color: #9acd32;">ttl</span>=10440&gt;)]
+73 responses to 256 queries
+
+real        0m1.490s
+user        0m0.655s
+sys 0m0.112s
+</pre>
+</div>
+
+</section>
+<section id="sec-10-3" >
+
+<h3>twisted.names.server</h3>
+</section>
+<section id="sec-10-3-1" >
+
+<h4>twistd dns</h4>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ twistd dns --help
+Usage: twistd [options] dns [options]
+Options:
+  -c, --cache         Enable record caching
+  -r, --recursive     Perform recursive lookups
+  -v, --verbose       Increment verbosity level
+  -i, --interface=    The interface to which to bind [default: ]
+  -p, --port=         The port on which to listen [default: 53]
+      --resolv-conf=  Override location of resolv.conf (implies --recursive)
+      --hosts-file=   Perform lookups with a hosts file
+      --help          Display this help and exit.
+      --version       Display Twisted version and exit.
+      --secondary=    Act as secondary for the specified domain, performing zone
+                      transfers from the specified IP (IP/domain)
+      --pyzone=       Specify the filename of a Python syntax zone definition
+      --bindzone=     Specify the filename of a BIND9 syntax zone definition
+</pre>
+</div>
+
+</section>
+<section id="sec-10-3-2" >
+
+<h4>Output</h4>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ twistd -n dns --port 10053 --recursive
+2013-09-20 04:36:08+0100 [-] Log opened.
+2013-09-20 04:36:08+0100 [-] twistd 13.1.0 (/usr/bin/python 2.7.5) starting up.
+2013-09-20 04:36:08+0100 [-] reactor class: twisted.internet.epollreactor.EPollReactor.
+2013-09-20 04:36:08+0100 [-] DNSServerFactory starting on 10053
+2013-09-20 04:36:08+0100 [-] DNSDatagramProtocol starting on 10053
+2013-09-20 04:36:08+0100 [-] Starting protocol &lt;twisted.names.dns.DNSDatagramProtocol object at 0x288da50&gt;
+2013-09-20 04:36:40+0100 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 61406
+2013-09-20 04:36:40+0100 [DNSDatagramProtocol (UDP)] Starting protocol &lt;twisted.names.dns.DNSDatagramProtocol object at 0x2895450&gt;
+2013-09-20 04:36:40+0100 [-] (UDP Port 61406 Closed)
+2013-09-20 04:36:40+0100 [-] Stopping protocol &lt;twisted.names.dns.DNSDatagramProtocol object at 0x2895450&gt;
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ dig -p 10053 @localhost www.example.com A +short
+93.184.216.119
+</pre>
+</div>
+
+
+</section>
+<section id="sec-10-4" >
+
+<h3>twisted.names.authority</h3>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #9acd32;">zone</span> = [
+    SOA(
+        <span style="color: #bdb76b;">'example.com'</span>,
+        mname = <span style="color: #bdb76b;">"ns1.example.com"</span>,
+        rname = <span style="color: #bdb76b;">"dnsmaster.example.com"</span>,
+        serial = 2013092001,
+        refresh = <span style="color: #bdb76b;">"1H"</span>,
+        retry = <span style="color: #bdb76b;">"1H"</span>,
+        expire = <span style="color: #bdb76b;">"1H"</span>,
+        minimum = <span style="color: #bdb76b;">"1H"</span>
+    ),
+
+    NS(<span style="color: #bdb76b;">'example.com'</span>, <span style="color: #bdb76b;">'ns1.example.com'</span>),
+    MX(<span style="color: #bdb76b;">'example.com'</span>, 0, <span style="color: #bdb76b;">'mail.example.com'</span>),
+
+    A(<span style="color: #bdb76b;">'example.com'</span>, <span style="color: #bdb76b;">'192.0.2.10'</span>),
+    CNAME(<span style="color: #bdb76b;">'www.example.com'</span>, <span style="color: #bdb76b;">'example.com'</span>),
+    A(<span style="color: #bdb76b;">'mail.example.com'</span>, <span style="color: #bdb76b;">'192.0.2.20'</span>),
+    A(<span style="color: #bdb76b;">'ns1.example.com'</span>, <span style="color: #bdb76b;">'192.0.2.30'</span>),
+]
+</pre>
+</div>
+<p>
+example.com.py
+</p>
+
+
+
+</section>
+<section id="sec-10-4-1" >
+
+<h4>Output</h4>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ twistd -n dns --port 10053 --pyzone=examples/example.com.py
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ dig -p 10053 @localhost www.example.com A +short
+example.com.
+192.0.2.10
+</pre>
+</div>
+
+</section>
+<section id="sec-10-5" >
+
+<h3>twisted.names.common</h3>
+
+
+</section>
+<section id="sec-10-6" >
+
+<h3>twisted.names.resolve</h3>
+
+
+</section>
+<section id="sec-10-7" >
+
+<h3>twisted.names.cache</h3>
+
+
+</section>
+<section id="sec-10-8" >
+
+<h3>twisted.names.root</h3>
+
+
+
+</section>
+<section id="sec-10-9" >
+
+<h3>twisted.names.secondary</h3>
+
+
+
+</section>
+<section id="sec-10-10" >
+
+<h3>Building Blocks</h3>
+<ul class="org-ul">
+<li>Compliance testing
+</li>
+<li>Functional testing helpers
+</li>
+<li>Database backed DNS server
+</li>
+<li>REST based DNS management API
+</li>
+</ul>
+</section>
+
+
+</section>
+<section>
+<section id="sec-11" >
+
+<h2>Example</h2>
+<p>
+dnsmap - <a href="https://code.google.com/p/dnsmap/">https://code.google.com/p/dnsmap/</a>
+</p>
+</section>
+
+</section>
+<section>
+<section id="sec-12" >
+
+<h2>Example - dnsmap</h2>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ dnsmap
+dnsmap 0.30 - DNS Network Mapper by pagvac (gnucitizen.org)
+
+usage: dnsmap &lt;target-domain&gt; [options]
+options:
+-w &lt;wordlist-file&gt;
+-r &lt;regular-results-file&gt;
+-c &lt;csv-results-file&gt;
+-d &lt;delay-millisecs&gt;
+-i &lt;ips-to-ignore&gt; (useful if you<span style="color: #bdb76b;">'re obtaining false positives)</span>
+
+<span style="color: #bdb76b;">e.g.:</span>
+<span style="color: #bdb76b;">dnsmap target-domain.foo</span>
+<span style="color: #bdb76b;">dnsmap target-domain.foo -w yourwordlist.txt -r /tmp/domainbf_results.txt</span>
+<span style="color: #bdb76b;">dnsmap target-fomain.foo -r /tmp/ -d 3000</span>
+<span style="color: #bdb76b;">dnsmap target-fomain.foo -r ./domainbf_results.txt</span>
+</pre>
+</div>
+</section>
+
+</section>
+<section>
+<section id="sec-13" >
+
+<h2>Example - dnsmap</h2>
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ time dnsmap spotify.com
+...
+groups.spotify.com
+IP address <span style="color: #00cd66;">#</span><span style="color: #00cd66;">1: 173.194.69.121</span>
+
+^C
+
+real  0m48.784s
+user  0m0.086s
+sys   0m0.460s
+</pre>
+</div>
+</section>
+
+</section>
+<section>
+<section id="sec-14" >
+
+<h2>Example - dnsmap</h2>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #ffffff;">import</span> sys
+<span style="color: #ffffff;">from</span> twisted.internet <span style="color: #ffffff;">import</span> defer, task
+<span style="color: #ffffff;">from</span> twisted.names <span style="color: #ffffff;">import</span> client, error
+
+<span style="color: #9acd32;">CONCURRENCY</span> = 100
+
+<span style="color: #ffffff;">def</span> <span style="color: #98fb98;">subdomains</span>(parent_domain, children):
+    <span style="color: #ffffff;">yield</span> parent_domain
+    <span style="color: #ffffff;">for</span> child <span style="color: #ffffff;">in</span> children:
+        <span style="color: #ffffff;">yield</span> child + <span style="color: #bdb76b;">'.'</span> + parent_domain
+
+<span style="color: #ffffff;">class</span> <span style="color: #7fffd4;">DNSMapper</span>(<span style="color: #b0c4de;">object</span>):
+    <span style="color: #ffffff;">def</span> <span style="color: #98fb98;">__init__</span>(<span style="color: #ffffff;">self</span>):
+        <span style="color: #ffffff;">self</span>.success = []
+        <span style="color: #ffffff;">self</span>.failure = []
+        <span style="color: #ffffff;">self</span>.timeout = []
+
+    <span style="color: #ffffff;">def</span> <span style="color: #98fb98;">_handle_result</span>(<span style="color: #ffffff;">self</span>, res, domain):
+        <span style="color: #9acd32;">answers</span>, <span style="color: #9acd32;">authority</span>, <span style="color: #9acd32;">additional</span> = res
+        <span style="color: #ffffff;">if</span> answers:
+            <span style="color: #ffffff;">self</span>.success.append(domain)
+            sys.stdout.write(<span style="color: #bdb76b;">"{domain} ({count})\n"</span>.<span style="color: #b0c4de;">format</span>(domain=domain, count=<span style="color: #b0c4de;">len</span>(answers)))
+
+    <span style="color: #ffffff;">def</span> <span style="color: #98fb98;">_handle_error</span>(<span style="color: #ffffff;">self</span>, result, domain):
+        <span style="color: #9acd32;">error_type</span> = result.trap(error.DNSQueryTimeoutError, error.DomainError, defer.TimeoutError)
+        <span style="color: #ffffff;">if</span> error_type <span style="color: #ffffff;">in</span> (error.DNSQueryTimeoutError, defer.TimeoutError):
+            <span style="color: #ffffff;">self</span>.timeout.append(domain)
+        <span style="color: #ffffff;">elif</span> error_type <span style="color: #ffffff;">is</span> error.DomainError:
+            <span style="color: #ffffff;">self</span>.failure.append(domain)
+
+    <span style="color: #ffffff;">def</span> <span style="color: #98fb98;">sender</span>(<span style="color: #ffffff;">self</span>, domains):
+        <span style="color: #9acd32;">resolver</span> = client.Resolver(servers=[(<span style="color: #bdb76b;">'8.8.8.8'</span>, 53)])
+        <span style="color: #ffffff;">for</span> domain <span style="color: #ffffff;">in</span> domains:
+            <span style="color: #9acd32;">d</span> = resolver.lookupAllRecords(domain, timeout=(5,10))
+            d.addCallback(<span style="color: #ffffff;">self</span>._handle_result, domain)
+            d.addErrback(<span style="color: #ffffff;">self</span>._handle_error, domain)
+            <span style="color: #ffffff;">yield</span> d
+
+    <span style="color: #ffffff;">def</span> <span style="color: #98fb98;">summary</span>(<span style="color: #ffffff;">self</span>):
+        <span style="color: #ffffff;">return</span> <span style="color: #bdb76b;">'SUCCESS: {success}, FAILURE: {failure}, TIMEOUT: {timeout}'</span>.<span style="color: #b0c4de;">format</span>(
+            success=<span style="color: #b0c4de;">len</span>(<span style="color: #ffffff;">self</span>.success),
+            failure=<span style="color: #b0c4de;">len</span>(<span style="color: #ffffff;">self</span>.failure),
+            timeout=<span style="color: #b0c4de;">len</span>(<span style="color: #ffffff;">self</span>.timeout))
+
+<span style="color: #ffffff;">def</span> <span style="color: #98fb98;">main</span>(reactor, parent_domain, wordfile=<span style="color: #40e0d0;">None</span>):
+    <span style="color: #ffffff;">if</span> wordfile <span style="color: #ffffff;">in</span> (<span style="color: #40e0d0;">None</span>, <span style="color: #bdb76b;">'-'</span>):
+        <span style="color: #9acd32;">wordfile</span> = sys.stdin
+    <span style="color: #ffffff;">else</span>:
+        <span style="color: #9acd32;">wordfile</span> = <span style="color: #b0c4de;">open</span>(wordfile)
+
+    <span style="color: #9acd32;">mapper</span> = DNSMapper()
+    <span style="color: #9acd32;">domains</span> = subdomains(parent_domain, (word.strip() <span style="color: #ffffff;">for</span> word <span style="color: #ffffff;">in</span> wordfile))
+
+    <span style="color: #9acd32;">clients</span> = []
+    <span style="color: #ffffff;">for</span> i <span style="color: #ffffff;">in</span> <span style="color: #b0c4de;">range</span>(CONCURRENCY):
+        <span style="color: #9acd32;">client</span> = task.cooperate(mapper.sender(domains))
+        clients.append(client.whenDone())
+    <span style="color: #9acd32;">result</span> = defer.DeferredList(clients)
+
+    <span style="color: #ffffff;">def</span> <span style="color: #98fb98;">print_summary</span>(res):
+        <span style="color: #ffffff;">print</span>(mapper.summary())
+
+    result.addBoth(print_summary)
+    <span style="color: #ffffff;">return</span> result
+
+task.react(main, sys.argv[1:])
+</pre>
+</div>
+<p>
+dnsmap.py
+</p>
+
+</section>
+<section>
+
+<div class="org-src-container">
+
+<pre  class="src src-sh">$ time python examples/dnsmap.py spotify.com prefixes.txt
+<span style="color: #98fb98;">accounts.spotify.com</span> (1)
+<span style="color: #98fb98;">ap.spotify.com</span> (1)
+<span style="color: #98fb98;">beta.spotify.com</span> (1)
+<span style="color: #98fb98;">blog.spotify.com</span> (1)
+<span style="color: #98fb98;">developers.spotify.com</span> (1)
+<span style="color: #98fb98;">download.spotify.com</span> (1)
+<span style="color: #98fb98;">spotify.com</span> (16)
+<span style="color: #98fb98;">er.spotify.com</span> (5)
+<span style="color: #98fb98;">fg.spotify.com</span> (1)
+<span style="color: #98fb98;">files.spotify.com</span> (1)
+<span style="color: #98fb98;">groups.spotify.com</span> (1)
+<span style="color: #98fb98;">images.spotify.com</span> (1)
+<span style="color: #98fb98;">labs.spotify.com</span> (1)
+<span style="color: #98fb98;">log.spotify.com</span> (3)
+<span style="color: #98fb98;">login.spotify.com</span> (1)
+<span style="color: #98fb98;">m.spotify.com</span> (1)
+<span style="color: #98fb98;">mail.spotify.com</span> (1)
+<span style="color: #98fb98;">mobile.spotify.com</span> (1)
+<span style="color: #98fb98;">news.spotify.com</span> (1)
+<span style="color: #98fb98;">ns1.spotify.com</span> (1)
+<span style="color: #98fb98;">ns2.spotify.com</span> (1)
+<span style="color: #98fb98;">ns3.spotify.com</span> (1)
+<span style="color: #98fb98;">partners.spotify.com</span> (1)
+<span style="color: #98fb98;">r.spotify.com</span> (1)
+<span style="color: #98fb98;">support.spotify.com</span> (1)
+<span style="color: #98fb98;">wap.spotify.com</span> (1)
+<span style="color: #98fb98;">ws.spotify.com</span> (1)
+<span style="color: #98fb98;">www.spotify.com</span> (1)
+SUCCESS: 28, FAILURE: 918, TIMEOUT: 64
+
+real  0m2.529s
+user  0m1.461s
+sys   0m0.185s
+</pre>
+</div>
+</section>
+
+</section>
+<section>
+<section id="sec-15" >
+
+<h2>My Project</h2>
+<p>
+"Twisted Names EDNS(0) and DNSSEC Client Support"
+</p>
+</section>
+
+
+</section>
+<section>
+<section id="sec-16" >
+
+<h2>The EDNS Plan</h2>
+<img src="images/twisted-edns-plan.png" alt="twisted-edns-plan.png" />
+
+<p>
+<a href="https://twistedmatrix.com/trac/wiki/EDNS0">https://twistedmatrix.com/trac/wiki/EDNS0</a>
+</p>
+</section>
+
+
+</section>
+<section>
+<section id="sec-17" >
+
+<h2>Funding</h2>
+<img src="images/nlnet-application.png" alt="nlnet-application.png" />
+
+<p>
+<a href="http://www.nlnet.nl/foundation/request/application.html">http://www.nlnet.nl/foundation/request/application.html</a>
+</p>
+</section>
+
+
+</section>
+<section>
+<section id="sec-18" >
+
+<h2>EDNS(0)</h2>
+<p>
+RFC6891
+<img src="images/rfc6891.png" alt="rfc6891.png" />
+</p>
+
+<p>
+<a href="http://tools.ietf.org/html/rfc6891">http://tools.ietf.org/html/rfc6891</a>
+</p>
+</section>
+
+</section>
+<section>
+<section id="sec-19" >
+
+<h2>DNSSEC</h2>
+</section>
+
+
+
+</section>
+<section>
+<section id="sec-20" >
+
+<h2>DANE</h2>
+</section>
+
+
+</section>
+<section>
+<section id="sec-21" >
+
+<h2>Progress Report</h2>
+</section>
+<section id="sec-21-1" >
+
+<h3>Modest progress</h3>
+
+</section>
+<section id="sec-21-2" >
+
+<h3>Won Funding</h3>
+
+</section>
+<section id="sec-21-3" >
+
+<h3>OPT Record parsing complete</h3>
+<p>
+<a href="https://twistedmatrix.com/trac/changeset/39533">https://twistedmatrix.com/trac/changeset/39533</a>
+</p>
+</section>
+<section id="sec-21-4" >
+
+<h3>EDNS Message parsing complete</h3>
+<p>
+<a href="https://twistedmatrix.com/trac/ticket/5675">https://twistedmatrix.com/trac/ticket/5675</a>
+</p>
+</section>
+<section id="sec-21-5" >
+
+<h3>&#x2026;lots more to do!</h3>
+<ol class="org-ol">
+<li>EDNS Client
+</li>
+<li>EDNS Server
+</li>
+<li>RRSET improvements
+<ol class="org-ol">
+<li>Canonical Form and Order of Resource Records
+</li>
+<li>Serving RRSETs
+</li>
+<li>Receiving RRSETs
+</li>
+<li>Caching RRSETs
+</li>
+<li>Selective truncate
+</li>
+</ol>
+</li>
+<li>DNSSEC
+<ol class="org-ol">
+<li>New DNSSEC Records and Lookup Methods
+</li>
+<li>Security-aware Non-validating Client
+</li>
+<li>Validating Client
+</li>
+<li>Validating Recursive / Forwarding Server
+</li>
+<li>DNSSEC Aware Authoritative Server
+</li>
+</ol>
+</li>
+<li>DANE
+</li>
+</ol>
+</section>
+
+</section>
+<section>
+<section id="sec-22" >
+
+<h2>How will this be useful</h2>
+</section>
+<section id="sec-22-1" >
+
+<h3>EDNS Compliance Testing</h3>
+<div class="org-src-container">
+
+<pre  class="src src-python"><span style="color: #ffffff;">def</span> <span style="color: #98fb98;">test_613_badVersion</span>(<span style="color: #ffffff;">self</span>):
+    <span style="color: #bdb76b;">"""</span>
+<span style="color: #bdb76b;">    If a responder does not implement the VERSION level of the</span>
+<span style="color: #bdb76b;">    request, then it MUST respond with RCODE=BADVERS.</span>
+<span style="color: #bdb76b;">    https://tools.ietf.org/html/rfc6891#section-6.1.3</span>
+<span style="color: #bdb76b;">    """</span>
+    <span style="color: #9acd32;">proto</span> = edns.EDNSDatagramProtocol(
+        controller=<span style="color: #40e0d0;">None</span>, ednsVersion=255)
+    <span style="color: #ffffff;">self</span>.connectProtocol(proto)
+    <span style="color: #9acd32;">d</span> = proto.query(<span style="color: #ffffff;">self</span>.server, [dns.Query(<span style="color: #bdb76b;">'.'</span>, dns.NS, dns.IN)])
+    d.addCallback(
+        <span style="color: #ffffff;">lambda</span> message: <span style="color: #ffffff;">self</span>.assertEqual(message.rCode, dns.EBADVERSION))
+    <span style="color: #ffffff;">return</span> d
+</pre>
+</div>
+
+<p>
+<a href="https://twistedmatrix.com/trac/browser/branches/edns-message-5675-4/doc/names/examples/test_edns_compliance.py">https://twistedmatrix.com/trac/browser/branches/edns-message-5675-4/doc/names/examples/test_edns_compliance.py</a>
+</p>
+
+</section>
+<section id="sec-22-2" >
+
+<h3>Integration of DNSSEC into Twisted's Hostname Endpoint</h3>
+<p>
+allowing secure transparent client connections from a dual-stack
+IPv4 / IPv6 host.
+</p>
+
+</section>
+<section id="sec-22-3" >
+
+<h3>Add TLSA / DANE support to Twisted Web Agent</h3>
+<p>
+allowing Twisted HTTP clients to additionally validate certificates
+using signed DNS records.
+</p>
+</section>
+<section id="sec-22-4" >
+
+<h3>Add SSHFP support to Twisted Conch</h3>
+<p>
+allowing Twisted SSH clients to validate the public keys of a
+remote SSH server using signed DNS records.
+</p>
+</section>
+<section id="sec-22-5" >
+
+<h3>Add S/MIME and / or SMTP/TLSA support to Twisted Mail</h3>
+<p>
+allowing Twisted SMTP clients to validate remote server
+certificates using signed DNS records.
+</p>
+</section>
+<section id="sec-22-6" >
+
+<h3>A Twisted SSL enabled DNS stub resolver</h3>
+<p>
+which communicates securely with a Twisted DNSSEC validating server
+via an SSL/TLS or SSH transport. For situations where a Twisted
+client can't do DNSSEC verification its self.
+</p>
+</section>
+<section id="sec-22-7" >
+
+<h3>A Twisted DNSSEC management server</h3>
+<p>
+with an integrated SSH / HTTPS REST API for receiving and signing
+DS keys from the servers for delegated child zones.
+</p>
+</section>
+
+</section>
+<section>
+<section id="sec-23" >
+
+<h2>Summary</h2>
+<ol class="org-ol">
+<li>Twisted Names is an active project
+</li>
+<li>With a long history
+</li>
+<li>Building blocks for creating novel DNS servers and clients
+</li>
+<li>Come and help out
+</li>
+</ol>
+</section>
+
+</section>
+<section>
+<section id="sec-24" >
+
+<h2>Links</h2>
+<ul class="org-ul">
+<li><a href="https://github.com/wallrj/twisted-names-talk">https://github.com/wallrj/twisted-names-talk</a>
+</li>
+<li><a href="https://twitter.com/wallrj">https://twitter.com/wallrj</a>
+</li>
+<li><a href="http://twisted.readthedocs.org/en/latest/">http://twisted.readthedocs.org/en/latest/</a>
+</li>
+<li><a href="https://twistedmatrix.com/trac/wiki/TwistedCommunity">https://twistedmatrix.com/trac/wiki/TwistedCommunity</a>
+</li>
+</ul>
+</section>
+
+</section>
+<section>
+<section id="sec-25" >
+
+<h2>Questions?</h2>
+</section>
+</section>
+</div>
+</div>
+
+<script src="http://cdn.jsdelivr.net/reveal.js/2.5.0/lib/js/head.min.js"></script>
+<script src="http://cdn.jsdelivr.net/reveal.js/2.5.0/js/reveal.min.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: true,
+center: true,
+slideNumber: true,
+rollingLinks: false,
+keyboard: true,
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'http://cdn.jsdelivr.net/reveal.js/2.5.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/2.5.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/2.5.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/2.5.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/2.5.0/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/2.5.0/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+]
+});
+</script>
+</body>
+</html>
