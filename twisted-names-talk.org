@@ -5,7 +5,7 @@
 #+REVEAL_THEME: night
 #+REVEAL_TRANS: linear
 #+REVEAL-SLIDE-NUMBER: t
-#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/2.5.0/
+#+REVEAL_ROOT: //cdn.jsdelivr.net/reveal.js/2.5.0/
 #+OPTIONS: timestamp:nil author:nil num:nil toc:nil reveal_rolling_links:nil
 #+OPTIONS: reveal_history:t
 # Remove speaker notes
